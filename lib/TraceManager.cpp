@@ -13,6 +13,7 @@
 */
 
 #include "TraceManager.h"
+#include "ArchInterface.h"
 
 #include <cstdint>
 #include <cassert>
@@ -93,7 +94,7 @@ namespace gensim
 		}
 	}
 
-	TextFileTraceSink::TextFileTraceSink(FILE *outfile) : TraceSink(), outfile_(outfile)
+	TextFileTraceSink::TextFileTraceSink(FILE *outfile, ArchInterface *interface) : TraceSink(), outfile_(outfile), interface_(interface)
 	{
 
 	}
@@ -161,7 +162,8 @@ namespace gensim
 
 	void TextFileTraceSink::WriteInstructionCode(const InstructionCodeRecord* record)
 	{
-		fprintf(outfile_, "%08x ???\t\t", record->GetIR());
+		std::string disasm = interface_->DisassembleInstruction(*record);
+		fprintf(outfile_, "%08x %s\t\t", record->GetIR(), disasm.c_str());
 	}
 
 	void TextFileTraceSink::WriteRegRead(const RegReadRecord* record)
