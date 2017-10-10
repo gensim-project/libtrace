@@ -2,7 +2,9 @@
 #define RECORDITERATOR_H
 
 #include <cstdint>
-#include "records.h"
+#include "RecordTypes.h"
+
+namespace libtrace {
 
 class TraceRecord;
 class RecordFile;
@@ -24,11 +26,14 @@ public:
 	RecordIterator operator++(int) { auto temp = RecordIterator(_file, _idx); _idx++; return temp; }
 	
 	uint64_t index() { return _idx; }
+	
+	bool operator==(const libtrace::RecordIterator &other);
+	bool operator!=(const libtrace::RecordIterator &other);
 private:
 	uint64_t _idx;
 	RecordFile *_file;
 };
 
-bool operator==(const RecordIterator &a, const RecordIterator &b);
-bool operator!=(const RecordIterator &a, const RecordIterator &b);
+}
+
 #endif

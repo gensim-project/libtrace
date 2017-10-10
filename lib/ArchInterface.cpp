@@ -1,5 +1,7 @@
 #include "ArchInterface.h"
 
+using namespace libtrace;
+
 std::string ArchInterface::DisassembleInstruction(const InstructionCodeRecord &record) {
 	return "???";
 }

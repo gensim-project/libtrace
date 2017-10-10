@@ -1,8 +1,10 @@
-#include "records.h"
+#include "RecordTypes.h"
 #include "RecordFile.h"
 
 #include <cstdio>
 #include <cstdlib>
+
+using namespace libtrace;
 
 TraceRecord TR(Record r) {
 	return *(TraceRecord*)&r;
