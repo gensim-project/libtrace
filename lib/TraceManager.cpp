@@ -168,8 +168,8 @@ namespace gensim
 
 	void TextFileTraceSink::WriteRegRead(const RegReadRecord* record)
 	{
-		const std::string &regname = "???";
-		uint32_t width = 4;
+		const std::string &regname = interface_->GetRegisterSlotName(record->GetRegNum());
+		uint32_t width = interface_->GetRegisterSlotWidth(record->GetRegNum());
 		switch(width) {
 			case 1:
 				fprintf(outfile_, "(R[%s] => %02x)", regname.c_str(), record->GetData());
@@ -186,8 +186,8 @@ namespace gensim
 
 	void TextFileTraceSink::WriteRegWrite(const RegWriteRecord* record)
 	{
-		const std::string &regname = "???";
-		uint32_t width = 4;
+		const std::string &regname = interface_->GetRegisterSlotName(record->GetRegNum());
+		uint32_t width = interface_->GetRegisterSlotWidth(record->GetRegNum());
 
 		switch(width) {
 			case 1:
@@ -205,13 +205,15 @@ namespace gensim
 
 	void TextFileTraceSink::WriteBankRegRead(const BankRegReadRecord* record)
 	{
-		const std::string &regname = "???";
+		const std::string &regname = interface_->GetRegisterSlotName(record->GetBank());
+		// TODO: handle banks of registers which are not 32 bit
 		fprintf(outfile_, "(R[%s][%x] => %08x)", regname.c_str(), record->GetRegNum(), record->GetData());
 	}
 
 	void TextFileTraceSink::WriteBankRegWrite(const BankRegWriteRecord* record)
 	{
-		const std::string &regname = "???";
+		const std::string &regname = interface_->GetRegisterSlotName(record->GetBank());
+		// TODO: handle banks of registers which are not 32 bit
 		fprintf(outfile_, "(R[%s][%x] <= %08x)", regname.c_str(), record->GetRegNum(), record->GetData());
 	}
 
