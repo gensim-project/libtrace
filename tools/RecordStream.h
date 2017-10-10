@@ -1,12 +1,14 @@
 #ifndef RECORDSTREAM_H
 #define RECORDSTREAM_H
 
-#include "records.h"
+#include "RecordTypes.h"
 #include "RecordIterator.h"
 
 #include <cassert>
 #include <cstdio>
 #include <cstdlib>
+
+namespace libtrace {
 
 class RecordStream
 {
@@ -31,5 +33,6 @@ private:
 	void refill_buffer() { _good = (!feof(_file) && (fread(_buffer, sizeof(Record), kBufferEntries, _file) >= 0)); _buffer_ptr = _buffer; }
 };
 
+}
 
 #endif

@@ -4,6 +4,8 @@
 #include <iostream>
 #include <cstdio>
 
+using namespace libtrace;
+
 int main(int argc, char **argv)
 {
 	if(argc == 1) {

@@ -1,10 +1,12 @@
 #include "InstructionPrinter.h"
 #include "RecordIterator.h"
-#include "records.h"
+#include "RecordTypes.h"
 
 #include <cassert>
 #include <iomanip>
 #include <sstream>
+
+using namespace libtrace;
 
 InstructionPrinter::InstructionPrinter()
 {

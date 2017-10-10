@@ -1,8 +1,10 @@
-#include "records.h"
+#include "RecordTypes.h"
 #include "RecordFile.h"
 
 #include <cstdlib>
 #include <cstdio>
+
+using namespace libtrace;
 
 int main(int argc, char **argv)
 {

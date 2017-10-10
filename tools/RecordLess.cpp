@@ -10,6 +10,8 @@
 
 #include <ncurses.h>
 
+using namespace libtrace;
+
 #define BOOKMARK_WIDTH 10000
 
 int64_t top_index = 0;

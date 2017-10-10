@@ -4,6 +4,8 @@
 #include <iostream>
 #include <cstdio>
 
+using namespace libtrace;
+
 TraceRecord TR(Record r) {
 	return *(TraceRecord*)&r;
 }

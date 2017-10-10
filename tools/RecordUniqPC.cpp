@@ -1,9 +1,11 @@
-#include "records.h"
+#include "RecordTypes.h"
 #include "RecordStream.h"
 
 #include <cstdlib>
 #include <cstdio>
 #include <cstring>
+
+using namespace libtrace;
 
 TraceRecord TR(Record r) { return *(TraceRecord*)&r; }
 InstructionHeaderRecord IHR(Record r) { return *(InstructionHeaderRecord*)&r; }

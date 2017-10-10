@@ -1,4 +1,4 @@
-#include "records.h"
+#include "RecordTypes.h"
 #include "RecordStream.h"
 
 #include <vector>
@@ -6,6 +6,8 @@
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
+
+using namespace libtrace;
 
 int main(int argc, char **argv)
 {

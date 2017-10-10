@@ -1,4 +1,4 @@
-#include "records.h"
+#include "RecordTypes.h"
 #include "RecordFile.h"
 #include "InstructionPrinter.h"
 
@@ -8,6 +8,7 @@
 #include <iostream>
 #include <vector>
 
+using namespace libtrace;
 
 int main(int argc, char **argv)
 {

@@ -1,40 +1,21 @@
-/*
- * TraceManager.h
- *
- *  Created on: 8 Aug 2014
- *      Author: harry
- */
-
-#ifndef TRACEMANAGER_H_
-#define TRACEMANAGER_H_
-
-#include <algorithm>
-#include <cassert>
-#include <cstdio>
-#include <vector>
-#include <fstream>
+#ifndef TRACESOURCE_H_
+#define TRACESOURCE_H_
 
 #include "RecordTypes.h"
 
-class ArchInterface;
+#include <cstdint>
+#include <string>
+#include <vector>
 
-namespace gensim
-{
+#define RECORD_BUFFER_SIZE 1024*128
+#define PACKET_BUFFER_SIZE 1024
 
-	class TraceSink
+namespace libtrace {
+	class TraceSource
 	{
 	public:
-		TraceSink();
-
-		virtual void SinkPackets(const TraceRecord *start, const TraceRecord *end) = 0;
-		virtual void Flush() = 0;
-	};
-
-	class TraceManager
-	{
-	public:
-		TraceManager(uint32_t BufferSize);
-		virtual ~TraceManager();
+		TraceSource(uint32_t BufferSize);
+		virtual ~TraceSource();
 
 		virtual void Terminate();
 		void EmitPackets();
@@ -244,7 +225,7 @@ namespace gensim
 		bool suppressed;
 		bool aggressive_flushing_;
 
-		TraceManager();
+		TraceSource();
 
 	protected:
 		inline uint8_t get_reg_id(std::string reg_name)
@@ -280,51 +261,6 @@ namespace gensim
 		}
 
 	};
-
-	class BinaryFileTraceSink : public TraceSink
-	{
-	public:
-		BinaryFileTraceSink(FILE *outfile);
-		~BinaryFileTraceSink();
-
-		void SinkPackets(const TraceRecord* start, const TraceRecord* end) override;
-		void Flush() override;
-
-	private:
-		FILE *outfile_;
-		std::vector<TraceRecord> records_;
-	};
-
-	class TextFileTraceSink : public TraceSink
-	{
-	public:
-		TextFileTraceSink(FILE *outfile, ArchInterface *interface);
-		~TextFileTraceSink();
-
-		void SinkPackets(const TraceRecord* start, const TraceRecord* end) override;
-		void Flush() override;
-
-	private:
-		void WritePacket(const TraceRecord *pkt);
-
-		void WriteInstructionHeader(const InstructionHeaderRecord* record);
-		void WriteInstructionCode(const InstructionCodeRecord* record);
-		void WriteRegRead(const RegReadRecord* record);
-		void WriteRegWrite(const RegWriteRecord* record);
-		void WriteBankRegRead(const BankRegReadRecord* record);
-		void WriteBankRegWrite(const BankRegWriteRecord* record);
-		void WriteMemReadAddr(const MemReadAddrRecord* record);
-		void WriteMemReadData(const MemReadDataRecord* record);
-		void WriteMemWriteAddr(const MemWriteAddrRecord* record);
-		void WriteMemWriteData(const MemWriteDataRecord* record);
-
-		FILE *outfile_;
-		ArchInterface *interface_;
-
-		uint32_t isa_mode_;
-		uint32_t pc_;
-	};
 }
 
-
-#endif /* TRACEMANAGER_H_ */
+#endif

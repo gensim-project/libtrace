@@ -1,4 +1,4 @@
-#include "records.h"
+#include "RecordTypes.h"
 #include "RecordFile.h"
 
 #include <cstdio>
@@ -7,6 +7,8 @@
 #include <algorithm>
 #include <map>
 #include <set>
+
+using namespace libtrace;
 
 TraceRecord TR(Record r) {
 	return *(TraceRecord*)&r;
