@@ -16,13 +16,7 @@
 
 #include "RecordTypes.h"
 
-namespace archsim
-{
-	namespace abi
-	{
-		struct BinarySymbol;
-	}
-}
+class ArchInterface;
 
 namespace gensim
 {
@@ -304,7 +298,7 @@ namespace gensim
 	class TextFileTraceSink : public TraceSink
 	{
 	public:
-		TextFileTraceSink(FILE *outfile);
+		TextFileTraceSink(FILE *outfile, ArchInterface *interface);
 		~TextFileTraceSink();
 
 		void SinkPackets(const TraceRecord* start, const TraceRecord* end) override;
@@ -325,6 +319,7 @@ namespace gensim
 		void WriteMemWriteData(const MemWriteDataRecord* record);
 
 		FILE *outfile_;
+		ArchInterface *interface_;
 
 		uint32_t isa_mode_;
 		uint32_t pc_;
