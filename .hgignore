@@ -1,3 +1,4 @@
 syntax : regexp
 ^build/
 ^dist/
+^nbproject/
