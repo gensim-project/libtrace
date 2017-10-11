@@ -10,7 +10,7 @@ TOOLS=$(TOOL_SOURCES:tools/%.cpp=dist/bin/%)
 ALL_SOURCES=$(LIB_SOURCES) $(TOOL_SOURCES)
 ALL_OBJS=$(LIB_OBJS) $(TOOL_OBJS)
 
-INCDIRS=-I./inc
+INCDIRS=-I./inc/
 LIB=dist/lib/libtrace.a
 LIBS=$(LIB) -lncurses
 

@@ -1,6 +1,6 @@
-#include "InstructionPrinter.h"
-#include "RecordIterator.h"
-#include "RecordTypes.h"
+#include "libtrace/InstructionPrinter.h"
+#include "libtrace/RecordIterator.h"
+#include "libtrace/RecordTypes.h"
 
 #include <cassert>
 #include <iomanip>

@@ -1,5 +1,5 @@
-#include "RecordTypes.h"
-#include "RecordStream.h"
+#include "libtrace/RecordTypes.h"
+#include "libtrace/RecordStream.h"
 
 #include <vector>
 
