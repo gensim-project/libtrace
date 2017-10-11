@@ -144,7 +144,7 @@ namespace libtrace {
 		
 		uint32_t GetData() const { return GetData32(); }
 	};
-
+	
 }
 
 #endif

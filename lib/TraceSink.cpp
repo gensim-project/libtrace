@@ -32,7 +32,7 @@ void BinaryFileTraceSink::SinkPackets(const TraceRecord* start, const TraceRecor
 {
 	auto *ptr = start;
 	while(ptr < end) records_.push_back(*ptr++);
-	if(records_.size() >= RECORD_BUFFER_SIZE) {
+	if(records_.size() >= TraceSource::RecordBufferSize) {
 		Flush();
 	}
 }
