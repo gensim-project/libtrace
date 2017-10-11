@@ -29,7 +29,11 @@ ifeq ($(OPT),1)
 	CPPFLAGS += -O3 -DMULTITHREAD=1
 endif
 
-all: $(TOOLS) $(LIB)
+all: $(TOOLS) $(LIB) headers
+
+headers :
+	mkdir -p dist/inc
+	cp -r inc/* dist/inc/
 
 tests : $(TOOLS) .FORCE
 	make CPPFLAGS="$(CPPFLAGS)" -C tests

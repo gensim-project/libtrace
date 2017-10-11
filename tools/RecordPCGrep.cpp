@@ -25,7 +25,7 @@ int main(int argc, char **argv)
 	auto end = rf.end();
 	
 	uint64_t index = 0;
-	uint32_t prev_pc;
+	uint32_t prev_pc = 0;
 	
 	while(it != end) {
 		if(TR(*it).GetType() == InstructionHeader) {
