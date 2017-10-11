@@ -9,6 +9,8 @@ namespace libtrace {
 
 	class ArchInterface {
 	public:
+		virtual ~ArchInterface();
+		
 		virtual std::string DisassembleInstruction(const InstructionCodeRecord &record) = 0;
 		
 		virtual std::string GetRegisterSlotName(int index) = 0;
@@ -19,6 +21,8 @@ namespace libtrace {
 	};
 
 	class DefaultArchInterface : public ArchInterface {
+		virtual ~DefaultArchInterface();
+		
 		virtual std::string DisassembleInstruction(const InstructionCodeRecord &record) override;
 		
 		virtual std::string GetRegisterSlotName(int index) override;

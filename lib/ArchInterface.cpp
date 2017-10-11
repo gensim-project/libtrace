@@ -2,20 +2,30 @@
 
 using namespace libtrace;
 
-std::string ArchInterface::DisassembleInstruction(const InstructionCodeRecord &record) {
+ArchInterface::~ArchInterface()
+{
+
+}
+
+DefaultArchInterface::~DefaultArchInterface()
+{
+
+}
+
+std::string DefaultArchInterface::DisassembleInstruction(const InstructionCodeRecord &record) {
 	return "???";
 }
 
-std::string ArchInterface::GetRegisterSlotName(int idx) {
+std::string DefaultArchInterface::GetRegisterSlotName(int idx) {
 	return "???";
 }
-std::string ArchInterface::GetRegisterBankName(int idx) {
+std::string DefaultArchInterface::GetRegisterBankName(int idx) {
 	return "???";
 }
 
-uint32_t ArchInterface::GetRegisterSlotWidth(int idx) {
+uint32_t DefaultArchInterface::GetRegisterSlotWidth(int idx) {
 	return 0;
 }
-uint32_t ArchInterface::GetRegisterBankWidth(int idx) {
+uint32_t DefaultArchInterface::GetRegisterBankWidth(int idx) {
 	return 0;
 }
