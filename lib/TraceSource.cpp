@@ -12,9 +12,9 @@
 #include "tracing/TraceTypes.h"
 */
 
-#include "TraceSink.h"
-#include "TraceSource.h"
-#include "ArchInterface.h"
+#include "libtrace/TraceSink.h"
+#include "libtrace/TraceSource.h"
+#include "libtrace/ArchInterface.h"
 
 #include <cstdint>
 #include <cassert>

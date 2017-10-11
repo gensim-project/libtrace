@@ -1,5 +1,5 @@
-#include "RecordFile.h"
-#include "RecordIterator.h"
+#include "libtrace/RecordFile.h"
+#include "libtrace/RecordIterator.h"
 
 using namespace libtrace;
 

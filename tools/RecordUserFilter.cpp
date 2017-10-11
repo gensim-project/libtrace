@@ -1,6 +1,6 @@
-#include "RecordTypes.h"
-#include "RecordFile.h"
-#include "InstructionPrinter.h"
+#include "libtrace/RecordTypes.h"
+#include "libtrace/RecordFile.h"
+#include "libtrace/InstructionPrinter.h"
 
 #include <cstdio>
 #include <cstdlib>

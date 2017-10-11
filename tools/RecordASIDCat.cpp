@@ -1,5 +1,5 @@
-#include "RecordFile.h"
-#include "InstructionPrinter.h"
+#include "libtrace/RecordFile.h"
+#include "libtrace/InstructionPrinter.h"
 
 #include <iostream>
 #include <cstdio>

@@ -1,6 +1,6 @@
-#include "ArchInterface.h"
-#include "TraceSink.h"
-#include "TraceSource.h"
+#include "libtrace/ArchInterface.h"
+#include "libtrace/TraceSink.h"
+#include "libtrace/TraceSource.h"
 
 using namespace libtrace;
 

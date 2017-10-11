@@ -1,4 +1,4 @@
-#include "RecordFile.h"
+#include "libtrace/RecordFile.h"
 
 using namespace libtrace;
 

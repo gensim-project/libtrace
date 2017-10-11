@@ -1,4 +1,4 @@
-#include "ArchInterface.h"
+#include "libtrace/ArchInterface.h"
 
 using namespace libtrace;
 
