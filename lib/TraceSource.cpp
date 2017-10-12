@@ -30,32 +30,29 @@ using namespace libtrace;
 
 TraceSource::TraceSource(uint32_t BufferSize)
 	:
-	Tracing_Packet_Count(0),
-	packet_open(false),
-	is_terminated(false),
-	suppressed(false),
+	is_terminated_(false),
 	sink_(nullptr),
 	aggressive_flushing_(true)
 {
-	packet_buffer = (TraceRecord*)malloc(PacketBufferSize * sizeof(TraceRecord));
-	packet_buffer_end = packet_buffer+PacketBufferSize;
-	packet_buffer_pos = packet_buffer;
+	packet_buffer_ = (TraceRecord*)malloc(PacketBufferSize * sizeof(TraceRecord));
+	packet_buffer_end_ = packet_buffer_+PacketBufferSize;
+	packet_buffer_pos_ = packet_buffer_;
 }
 
 TraceSource::~TraceSource()
 {
-	assert(is_terminated);
+	assert(is_terminated_);
 }
 
 void TraceSource::EmitPackets()
 {
-	sink_->SinkPackets(packet_buffer, packet_buffer_pos);
-	packet_buffer_pos = packet_buffer;
+	sink_->SinkPackets(packet_buffer_, packet_buffer_pos_);
+	packet_buffer_pos_ = packet_buffer_;
 }
 
 void TraceSource::Terminate()
 {
-	is_terminated = true;
+	is_terminated_ = true;
 }
 
 
