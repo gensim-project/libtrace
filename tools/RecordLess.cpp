@@ -59,16 +59,16 @@ bool GetInstructionHeaderIndex(uint64_t instruction_idx, uint64_t &record_idx)
 	
 	while(current_idx < instruction_idx) {
 		if((current_idx % BOOKMARK_WIDTH) == 0) instruction_header_bookmarks[current_idx] = record_idx;
-		if(open_file->count() <= record_idx) return false;
+		if(open_file->Size() <= record_idx) return false;
 		
-		Record r = open_file->get(record_idx);
+		Record r = open_file->Get(record_idx);
 		TraceRecord *tr = (TraceRecord*)&r;
 
 		assert(tr->GetType() == InstructionHeader);
 		record_idx++;
 		while(true) {
-			if(open_file->count() <= record_idx) return false;
-			r = open_file->get(record_idx);
+			if(open_file->Size() <= record_idx) return false;
+			r = open_file->Get(record_idx);
 			
 			if(tr->GetType() == InstructionHeader) break;
 			record_idx++;
@@ -111,9 +111,9 @@ void ScanToEnd()
 	
 	
 	while(true) {
-		if(record_idx >= open_file->count()) break;
+		if(record_idx >= open_file->Size()) break;
 		
-		Record r = open_file->get(record_idx);
+		Record r = open_file->Get(record_idx);
 		TraceRecord *tr = (TraceRecord*)&r;
 		if(tr->GetType() == InstructionHeader) {
 			if((top_index % BOOKMARK_WIDTH) == 0) instruction_header_bookmarks[top_index] = record_idx;
@@ -254,8 +254,8 @@ bool ExecuteSearch(bool reverse)
 	uint64_t instruction_match_idx = top_index;
 	
 	while(true) {
-		if(record_idx >= open_file->count()) return false;
-		Record r = open_file->get(record_idx);
+		if(record_idx >= open_file->Size()) return false;
+		Record r = open_file->Get(record_idx);
 		TraceRecord *tr = (TraceRecord*)&r;
 		
 		if(tr->GetType() ==  InstructionHeader) instruction_match_idx += addend;
@@ -369,10 +369,12 @@ bool DrawScreen()
 		bool exists = GetInstructionHeaderIndex(i, target_idx);
 		
 		if(exists) {
-			RecordIterator ri (open_file, target_idx);
+			RecordBufferStreamAdaptor adaptor (open_file);
+			adaptor.Skip(target_idx);
+			TracePacketStreamAdaptor tpsa(&adaptor);
 			move(line, 0);
 			
-			std::string insn = ip(ri, open_file->end());
+			std::string insn = ip(&tpsa);
 			
 			if(insn.size() > left_offset)
 				printw("%s", insn.substr(left_offset, terminal_width).c_str());

@@ -3,6 +3,7 @@
 
 #include <cstdint>
 #include "RecordTypes.h"
+#include "TraceRecordStream.h"
 
 namespace libtrace {
 
@@ -13,7 +14,7 @@ class RecordIterator;
 class RecordIterator
 {
 public:
-	RecordIterator(RecordFile *file, uint64_t start_idx) : _file(file), _idx(start_idx) {}
+	RecordIterator(RecordBufferInterface *buffer, uint64_t start_idx) : buffer_(buffer), _idx(start_idx) {}
 
 	friend bool operator==(const RecordIterator &a, const RecordIterator &b);
 
@@ -23,7 +24,7 @@ public:
 	RecordIterator operator++() { _idx++; return *this; }
 	
 	// Postincrement operator
-	RecordIterator operator++(int) { auto temp = RecordIterator(_file, _idx); _idx++; return temp; }
+	RecordIterator operator++(int) { auto temp = RecordIterator(buffer_, _idx); _idx++; return temp; }
 	
 	uint64_t index() { return _idx; }
 	
@@ -31,7 +32,7 @@ public:
 	bool operator!=(const libtrace::RecordIterator &other);
 private:
 	uint64_t _idx;
-	RecordFile *_file;
+	RecordBufferInterface *buffer_;
 };
 
 }

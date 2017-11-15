@@ -1,6 +1,9 @@
 #include "libtrace/InstructionPrinter.h"
 #include "libtrace/RecordIterator.h"
 #include "libtrace/RecordTypes.h"
+#include "libtrace/TraceRecordPacket.h"
+#include "libtrace/TraceRecordStream.h"
+#include "libtrace/RecordReader.h"
 
 #include <cassert>
 #include <iomanip>
@@ -34,55 +37,28 @@ InstructionPrinter::InstructionPrinter()
 	SetDisplayAll();
 }
 
-std::string InstructionPrinter::operator()(RecordIterator &it, RecordIterator end)
+std::string InstructionPrinter::operator()(TracePacketStreamInterface *stream)
 {
 	std::stringstream str;
-	PrintInstruction(str, it, end);
+	PrintInstruction(str, stream);
 	return str.str();
 }
 
-bool InstructionPrinter::PrintInstruction(std::ostream &str, RecordIterator &it, RecordIterator end)
+bool InstructionPrinter::PrintInstruction(std::ostream& str, TracePacketStreamInterface* stream)
 {
-	// Print both header records
-	TraceRecord header_record = *it++;
-	TraceRecord code_record = *it++;
+	TraceRecordPacket header_packet = stream->Get();
+	TraceRecordPacket code_packet = stream->Get();
 	
-	assert(header_record.GetType() == InstructionHeader);
-	assert(code_record.GetType() == InstructionCode);
+	assert(header_packet.GetRecord().GetType() == InstructionHeader);
+	assert(code_packet.GetRecord().GetType() == InstructionCode);
 	
-	InstructionHeaderRecord *hdr = (InstructionHeaderRecord*)&header_record;
-	InstructionCodeRecord *code = (InstructionCodeRecord*)&code_record;
+	InstructionHeaderReader hdr  (*(InstructionHeaderRecord*)&header_packet.GetRecord(), header_packet.GetExtensions());
+	InstructionCodeReader   code (*(InstructionCodeRecord*)&code_packet.GetRecord(), code_packet.GetExtensions());
 	
-	str << "[" << std::hex << std::setw(8) << std::setfill('0') << hdr->GetPC() << "] " << std::hex << std::setw(8) << std::setfill('0') << code->GetIR() << " ";
+	str << "[" << std::hex << std::setw(8) << std::setfill('0') << hdr.GetPC().AsU32() << "] " << std::hex << std::setw(8) << std::setfill('0') << code.GetCode().AsU32() << " ";
 	
-	std::vector<DataExtensionRecord> extensions;
-	while(it != end && (*it).GetType() != InstructionHeader) {
-		// do a thing
-		TraceRecord rcd = *it;
-		TraceRecord *record = &rcd;
-		
-		if(record->GetType() == DataExtension) {
-			extensions.push_back(*(DataExtensionRecord*)&rcd);
-			continue;
-		}
-		
-		assert(extensions.size() == record->GetExtensionCount());
-		
-		switch((*it).GetType()) {
-			case RegRead: PrintRegRead(str, (RegReadRecord*)record, extensions); break;
-			case RegWrite: PrintRegWrite(str, (RegWriteRecord*)record, extensions); break;
-			case BankRegRead: PrintBankRegRead(str, (BankRegReadRecord*)record, extensions); break;
-			case BankRegWrite: PrintBankRegWrite(str, (BankRegWriteRecord*)record, extensions); break;
-			case MemReadAddr: PrintMemRead(str, it, extensions); break;
-			case MemWriteAddr: PrintMemWrite(str, it, extensions); break;
-			default:
-				fprintf(stderr, "Unsupported record type %u at %lu\n", (*it).GetType(), it.index());
-				assert(false && "Unsupported record type");
-		}
-		
-		extensions.clear();
-		
-		it++;
+	while(stream->Good() && (stream->Peek().GetRecord().GetType() != InstructionHeader)) {
+		TraceRecordPacket next_packet = stream->Get();
 	}
 	
 	return true;

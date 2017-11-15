@@ -15,6 +15,8 @@
 #include <fstream>
 
 #include "RecordTypes.h"
+#include "TraceRecordPacket.h"
+#include "TraceRecordStream.h"
 
 namespace libtrace {
 
@@ -53,7 +55,7 @@ class ArchInterface;
 		void Flush() override;
 
 	private:
-		void WritePacket(const TraceRecord *pkt);
+		void WritePacket(const TraceRecordPacket &pkt);
 
 		void WriteInstructionHeader(const InstructionHeaderRecord* record);
 		void WriteInstructionCode(const InstructionCodeRecord* record);
@@ -71,6 +73,9 @@ class ArchInterface;
 
 		uint32_t isa_mode_;
 		uint32_t pc_;
+		
+		RecordStreamOutputInterface *record_output_stream_;
+		PacketStreamInterface *packet_input_stream_;
 	};
 }
 

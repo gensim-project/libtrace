@@ -1,6 +1,8 @@
 #include "libtrace/ArchInterface.h"
 #include "libtrace/TraceSink.h"
 #include "libtrace/TraceSource.h"
+#include "libtrace/TraceRecordStream.h"
+#include "libtrace/TraceRecordPacketVisitor.h"
 
 using namespace libtrace;
 
@@ -49,13 +51,52 @@ TextFileTraceSink::~TextFileTraceSink()
 
 void TextFileTraceSink::SinkPackets(const TraceRecord* start, const TraceRecord* end)
 {
-	while(start < end) {
-		WritePacket(start++);
+	while(start != end) {
+		record_output_stream_->Put(*start++);
+	}
+	
+	while(packet_input_stream_->Good()) {
+		TraceRecordPacket packet = packet_input_stream_->Get();
+		WritePacket(packet);
 	}
 }
 
-void TextFileTraceSink::WritePacket(const TraceRecord* pkt)
+class TextTraceSinkVisitor : public TraceRecordPacketVisitor {
+public:
+	TextTraceSinkVisitor(FILE *outfile, ArchInterface *interface) : outfile_(outfile), interface_(interface) {}
+	
+	virtual ~TextTraceSinkVisitor()
+	{
+
+	}
+
+	void VisitBankRegRead(const BankRegReadReader& record) override {}
+	void VisitBankRegWrite(const BankRegWriteReader& record) override {}
+	void VisitInstructionCode(const InstructionCodeReader& record) override {
+		std::string disasm = interface_->DisassembleInstruction(record.GetRecord());
+		fprintf(outfile_, "%08x %s\t\t", record.GetCode().AsU32(), disasm.c_str());
+	}
+	void VisitInstructionHeader(const InstructionHeaderReader& record) override {
+		fprintf(outfile_, "\n[%08x] ", record.GetPC().AsU32());
+	}
+	void VisitMemReadAddr(const MemReadAddrReader& record) override {}
+	void VisitMemReadData(const MemReadDataReader& record) override {}
+	void VisitMemWriteAddr(const MemWriteAddrReader& record) override {}
+	void VisitMemWriteData(const MemWriteDataReader& record) override {}
+	void VisitRegRead(const RegReadReader& record) override {}
+	void VisitRegWrite(const RegWriteReader& record) override {}
+
+private:
+	FILE *outfile_;
+	ArchInterface *interface_;
+};
+
+void TextFileTraceSink::WritePacket(const TraceRecordPacket& pkt)
 {
+	TextTraceSinkVisitor visitor(outfile_, interface_);
+	visitor.Visit(pkt);
+	
+	/*
 	switch(pkt->GetType()) {
 		case TraceRecordType::InstructionHeader:
 			WriteInstructionHeader((InstructionHeaderRecord*)pkt);
@@ -87,7 +128,7 @@ void TextFileTraceSink::WritePacket(const TraceRecord* pkt)
 		case TraceRecordType::MemWriteData:
 			WriteMemWriteData((MemWriteDataRecord*)pkt);
 			return;
-	}
+	}*/
 	Flush();
 }
 
@@ -98,15 +139,12 @@ void TextFileTraceSink::Flush()
 
 void TextFileTraceSink::WriteInstructionHeader(const InstructionHeaderRecord* record)
 {
-	fprintf(outfile_, "\n[%08x] ", record->GetPC());
-	isa_mode_ = record->GetIsaMode();
-	pc_ = record->GetPC();
+	
 }
 
 void TextFileTraceSink::WriteInstructionCode(const InstructionCodeRecord* record)
 {
-	std::string disasm = interface_->DisassembleInstruction(*record);
-	fprintf(outfile_, "%08x %s\t\t", record->GetIR(), disasm.c_str());
+	
 }
 
 void TextFileTraceSink::WriteRegRead(const RegReadRecord* record)
@@ -185,7 +223,7 @@ void TextFileTraceSink::WriteMemReadData(const MemReadDataRecord* record)
 
 void TextFileTraceSink::WriteMemWriteAddr(const MemWriteAddrRecord* record)
 {
-	fprintf(outfile_, "(Mem[%u][%08x] => ", record->GetWidth(), record->GetAddress());
+	fprintf(outfile_, "(Mem[%u][%08x] <= ", record->GetWidth(), record->GetAddress());
 }
 
 void TextFileTraceSink::WriteMemWriteData(const MemWriteDataRecord* record)

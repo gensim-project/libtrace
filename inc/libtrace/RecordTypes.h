@@ -20,6 +20,8 @@ namespace libtrace {
 		MemWriteAddr,
 		MemWriteData,
 		
+		InstructionBundleHeader,
+		
 		DataExtension
 	};
 		
@@ -38,6 +40,7 @@ namespace libtrace {
 	{
 	public:
 		TraceRecord(TraceRecordType type, uint16_t data16, uint32_t data32, uint8_t extension_count) : Record((((uint32_t)type) << 24) | (((uint32_t)extension_count) << 16) | data16, data32) {}
+		TraceRecord() : TraceRecord(Unknown, 0, 0, 0) {}
 		TraceRecord(const TraceRecord &tr) : Record(tr.GetHeader(), tr.GetData()) {}
 		
 		TraceRecordType GetType() const { return (TraceRecordType)(GetHeader() >> 24); }
@@ -147,6 +150,13 @@ namespace libtrace {
 		uint32_t GetData() const { return GetData32(); }
 	};
 	
+	struct InstructionBundleHeaderRecord : public TraceRecord 
+	{
+	public:
+		InstructionBundleHeaderRecord(uint32_t low_start_pc, uint8_t extensions) : TraceRecord(InstructionBundleHeader, 0, low_start_pc, extensions) {}
+		
+		uint32_t GetLowPC() const { return GetData32(); }
+	};
 }
 
 #endif
