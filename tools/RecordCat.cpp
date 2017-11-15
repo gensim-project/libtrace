@@ -20,6 +20,8 @@ int main(int argc, char **argv)
 	}
 	
 	RecordFile rf (rfile);
+	RecordBufferStreamAdaptor rbsa (&rf);
+	TracePacketStreamAdaptor tpsa(&rbsa);
 	
 	auto begin = rf.begin();
 	auto end = rf.end();
@@ -27,8 +29,7 @@ int main(int argc, char **argv)
 	InstructionPrinter ip;
 	
 	while(begin != end) {
-		std::cout << ip(begin, end) << std::endl;
-		
+		std::cout << ip(&tpsa) << std::endl;
 	}
 	
 	return 0;

@@ -3,6 +3,7 @@
 
 #include "RecordTypes.h"
 #include "RecordIterator.h"
+#include "TraceRecordStream.h"
 
 #include <cassert>
 #include <cstdio>
@@ -10,7 +11,7 @@
 
 namespace libtrace {
 
-	class RecordFile
+	class RecordFile : public RecordBufferInterface
 	{
 	public:
 		RecordFile(FILE *f) : _file(f), _buffer(nullptr) { if(f) fseek(f, 0, SEEK_END); uint64_t size = ftell(f); _count = size / sizeof(Record); }
@@ -18,8 +19,8 @@ namespace libtrace {
 		RecordIterator begin();
 		RecordIterator end();
 		
-		Record get(uint64_t i) { if(i >= _count) assert(false); if(!_buffer || _buffer_page != BufferPage(i)) loadBuffer(i); return _buffer[BufferOffset(i)]; }
-		uint64_t count() { return _count; }
+		Record Get(size_t i) { if(i >= _count) assert(false); if(!_buffer || _buffer_page != BufferPage(i)) loadBuffer(i); return _buffer[BufferOffset(i)]; }
+		uint64_t Size() { return _count; }
 		
 	private:
 		static const uint64_t kBufferBits = 17;
@@ -51,7 +52,7 @@ namespace libtrace {
 		uint64_t _buffer_page;
 		Record *_buffer;
 	};
-
+	
 }
 
 #endif

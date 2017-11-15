@@ -25,8 +25,16 @@ namespace libtrace {
 		virtual void Terminate();
 		void EmitPackets();
 
+	private:
 		template <typename PCT> void TraceInstructionHeader(PCT pc, uint8_t isa_mode);
 		template <typename CodeT> void TraceInstructionCode(CodeT pc, uint8_t irq_mode);
+		template <typename PCT> void TraceBundleHeader(PCT pc);
+	
+	public:	
+		template<typename PCT> void Trace_StartBundle(PCT PC) {
+			assert(!IsTerminated() && !IsPacketOpen());
+			TraceBundleHeader(PC);
+		}
 		
 		template<typename PCT, typename CodeT> void Trace_Insn(PCT PC, CodeT IR, bool JIT, uint8_t isa_mode, uint8_t irq_mode, uint8_t exec)
 		{
@@ -95,9 +103,11 @@ namespace libtrace {
 		/*
 		 * Memory Operation Tracing
 		 */
+	private:
 		template<typename T> void TraceMemReadAddr(T Addr, uint32_t Width);
 		template<typename T> void TraceMemReadData(T Data, uint32_t Width);
-		
+	
+	public:
 		template<typename AddrT, typename DataT> void Trace_Mem_Read(bool Trace, AddrT Addr, DataT Value, uint32_t Width=4)
 		{
 			if(!IsPacketOpen()) return;
@@ -107,9 +117,11 @@ namespace libtrace {
 			TraceMemReadData(Width, Value);
 		}
 		
+	private:
 		template<typename T> void TraceMemWriteAddr(T Addr, uint32_t Width);
 		template<typename T> void TraceMemWriteData(T Data, uint32_t Width);
-
+	
+	public:	
 		template<typename AddrT, typename DataT> void Trace_Mem_Write(bool Trace, AddrT Addr, DataT Value, uint32_t Width=4)
 		{
 			if(!IsPacketOpen()) return;
@@ -169,6 +181,14 @@ namespace libtrace {
 		TraceSource();
 	};
 	
+	template<> inline void TraceSource::TraceBundleHeader(uint32_t pc) {
+		*(InstructionBundleHeaderRecord*)getNextPacket() = InstructionBundleHeaderRecord(pc, 0);
+	}
+	template<> inline void TraceSource::TraceBundleHeader(uint64_t pc) {
+		*(DataExtensionRecord*)getNextPacket() = DataExtensionRecord(InstructionBundleHeader, pc >> 32);
+		*(InstructionBundleHeaderRecord*)getNextPacket() = InstructionBundleHeaderRecord(pc, 1);
+	}
+	
 	template <> inline void TraceSource::TraceInstructionHeader(uint32_t pc, uint8_t isa_mode) {
 		auto *header = (InstructionHeaderRecord*)getNextPacket();
 		*header = InstructionHeaderRecord(isa_mode, pc, 0);
@@ -180,6 +200,7 @@ namespace libtrace {
 		auto *header = (InstructionHeaderRecord*)getNextPacket();
 		*header = InstructionHeaderRecord(isa_mode, pc, 1);
 	}
+	
 	template <> inline void TraceSource::TraceInstructionCode(uint32_t ir, uint8_t irq_mode) {
 		auto *header = (InstructionCodeRecord*)getNextPacket();
 		*header = InstructionCodeRecord(irq_mode, ir, 0);

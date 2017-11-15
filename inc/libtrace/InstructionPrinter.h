@@ -8,7 +8,8 @@
 namespace libtrace {
 
 	class RecordIterator;
-
+	class TracePacketStreamInterface;
+	
 	class InstructionPrinter
 	{
 	public:
@@ -16,9 +17,9 @@ namespace libtrace {
 		
 		InstructionPrinter();
 
-		std::string operator()(RecordIterator &it, RecordIterator end);
+		std::string operator()(TracePacketStreamInterface *stream);
 
-		bool PrintInstruction(std::ostream &str, RecordIterator &it, RecordIterator end); 
+		bool PrintInstruction(std::ostream &str, TracePacketStreamInterface *stream); 
 		
 		void SetDisplayNone()
 		{
