@@ -21,7 +21,7 @@
 
 namespace libtrace {
 	class RecordReader {
-	protected:
+	public:
 		class DataReader {
 		public:
 			DataReader(const RecordReader &reader) : reader_(reader) {}
@@ -29,6 +29,7 @@ namespace libtrace {
 			size_t GetSize() const { return 4 + reader_.extensions_.size() * 4; }
 			uint32_t AsU32() const { return reader_.GetRecord().GetData32(); }
 			uint64_t AsU64() const { return (uint64_t)reader_.GetRecord().GetData32() | ((uint64_t)reader_.GetExtensions().at(0).GetData32() << 32); }
+			
 		private:
 			const RecordReader &reader_;
 		};
@@ -50,7 +51,7 @@ namespace libtrace {
 		extension_list_t extensions_;
 	};
 	
-#define ReaderTemplate(x) public: x ## Reader(const x ## Record &record, const extension_list_t &extensions) : RecordReader(record, x, extensions) {} public: x ## Record GetRecord() const { return (x ## Record)GetRecord(); };
+#define ReaderTemplate(x) public: x ## Reader(const x ## Record &record, const extension_list_t &extensions) : RecordReader(record, x, extensions) {} public: x ## Record GetRecord() const { auto record = RecordReader::GetRecord(); return *(x##Record*)&record; };
 #define Data32Template(x) public: DataReader Get##x() const { return DataReader(*this); }
 #define Data16Template(x) public: uint16_t Get##x() const { return this->GetRecord().GetData16(); }
 #define PassthroughTemplate(x, y) public: x Get##y() const { return this->GetRecord().Get##y(); }
@@ -116,6 +117,8 @@ namespace libtrace {
 		Data32Template(Data);
 	};
 }
+
+std::ostream &operator<<(std::ostream &str, const libtrace::RecordReader::DataReader &reader);
 
 #undef ReaderTemplate
 #undef Data16Template

@@ -4,6 +4,8 @@
 #include "libtrace/TraceRecordStream.h"
 #include "libtrace/TraceRecordPacketVisitor.h"
 
+#include <string.h>
+
 using namespace libtrace;
 
 
@@ -33,7 +35,10 @@ void BinaryFileTraceSink::Flush()
 void BinaryFileTraceSink::SinkPackets(const TraceRecord* start, const TraceRecord* end)
 {
 	auto *ptr = start;
-	while(ptr < end) records_.push_back(*ptr++);
+	auto oldsize = records_.size();
+	records_.resize(records_.size() + (end - start));
+	memcpy(records_.data() + oldsize, start, (end-start) * sizeof(*start));
+	
 	if(records_.size() >= TraceSource::RecordBufferSize) {
 		Flush();
 	}

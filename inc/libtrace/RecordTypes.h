@@ -29,7 +29,7 @@ namespace libtrace {
 	{
 	public:
 		Record(uint32_t header=0, uint32_t data=0) : header(header), data(data) {}
-	protected:
+		
 		uint32_t GetHeader() const { return header; }
 		uint32_t GetData() const { return data; }
 	private:
@@ -42,6 +42,7 @@ namespace libtrace {
 		TraceRecord(TraceRecordType type, uint16_t data16, uint32_t data32, uint8_t extension_count) : Record((((uint32_t)type) << 24) | (((uint32_t)extension_count) << 16) | data16, data32) {}
 		TraceRecord() : TraceRecord(Unknown, 0, 0, 0) {}
 		TraceRecord(const TraceRecord &tr) : Record(tr.GetHeader(), tr.GetData()) {}
+		TraceRecord(const Record &r) : Record(r.GetHeader(), r.GetData()) {}
 		
 		TraceRecordType GetType() const { return (TraceRecordType)(GetHeader() >> 24); }
 		uint8_t GetExtensionCount() const { return (TraceRecordType)(GetHeader() >> 16); }
