@@ -18,6 +18,7 @@
 #include "libtrace/RecordTypes.h"
 
 #include <deque>
+#include <string.h>
 
 namespace libtrace {
 	
