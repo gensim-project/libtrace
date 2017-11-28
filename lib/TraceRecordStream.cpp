@@ -6,6 +6,7 @@
 
 #include "libtrace/TraceRecordStream.h"
 
+#include <cassert>
 #include <cstdlib>
 
 using namespace libtrace;
@@ -53,11 +54,10 @@ TracePacketStreamAdaptor::~TracePacketStreamAdaptor()
 
 TraceRecordPacket TracePacketStreamAdaptor::Get()
 {
-	if(packet_ready_) {
-		packet_ready_ = false;
-		return packet_;
+	if(!packet_ready_) {
+		PreparePacket();
 	}
-	PreparePacket();
+	packet_ready_ = false;
 	return packet_;
 }
 
@@ -84,6 +84,7 @@ bool TracePacketStreamAdaptor::PreparePacket()
 	}
 	Record rpacket_head = input_stream_->Get();
 	TraceRecord packet_head = *(TraceRecord*)&rpacket_head;
+	assert(packet_head.GetType() != DataExtension);
 	
 	std::vector<DataExtensionRecord> extensions;
 	for(int i = 0; i < packet_head.GetExtensionCount(); ++i) {
@@ -93,6 +94,7 @@ bool TracePacketStreamAdaptor::PreparePacket()
 	}
 	
 	packet_ = TraceRecordPacket(packet_head, extensions);
+	packet_ready_ = true;
 	return true;
 }
 

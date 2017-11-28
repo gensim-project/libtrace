@@ -3,6 +3,7 @@
 #include "libtrace/RecordTypes.h"
 #include "libtrace/TraceRecordPacket.h"
 #include "libtrace/TraceRecordStream.h"
+#include "libtrace/TraceRecordPacketVisitor.h"
 #include "libtrace/RecordReader.h"
 
 #include <cassert>
@@ -44,6 +45,35 @@ std::string InstructionPrinter::operator()(TracePacketStreamInterface *stream)
 	return str.str();
 }
 
+class InstructionPrinterVisitor : public TraceRecordPacketVisitor {
+public:
+	InstructionPrinterVisitor(std::ostream &target) : target_(target) {}
+	
+	void VisitBankRegRead(const BankRegReadReader& record) override {
+		target_ << "(R[" << (uint32_t)record.GetBank() << "][" << (uint32_t)record.GetRegNum() <<"] -> " << record.GetValue() << ")";
+	}
+	void VisitBankRegWrite(const BankRegWriteReader& record) override {
+		target_ << "(R[" << (uint32_t)record.GetBank() << "][" << (uint32_t)record.GetRegNum() <<"] <- " << record.GetValue() << ")";
+	}
+	void VisitRegRead(const RegReadReader& record) override {
+		target_ << "(R[" << (uint32_t)record.GetIndex() << "] -> " << record.GetValue() << ")";
+	}
+	void VisitRegWrite(const RegWriteReader& record) override {
+		target_ << "(R[" << (uint32_t)record.GetIndex() << "] <- " << record.GetValue() << ")";
+	}
+
+	void VisitInstructionCode(const InstructionCodeReader& record) override {} 
+	void VisitInstructionHeader(const InstructionHeaderReader& record) override {}
+
+	void VisitMemReadAddr(const MemReadAddrReader& record) override {}
+	void VisitMemReadData(const MemReadDataReader& record) override {}
+	void VisitMemWriteAddr(const MemWriteAddrReader& record) override {}
+	void VisitMemWriteData(const MemWriteDataReader& record) override {}
+
+private:
+	std::ostream &target_;
+};
+
 bool InstructionPrinter::PrintInstruction(std::ostream& str, TracePacketStreamInterface* stream)
 {
 	TraceRecordPacket header_packet = stream->Get();
@@ -59,6 +89,9 @@ bool InstructionPrinter::PrintInstruction(std::ostream& str, TracePacketStreamIn
 	
 	while(stream->Good() && (stream->Peek().GetRecord().GetType() != InstructionHeader)) {
 		TraceRecordPacket next_packet = stream->Get();
+		
+		InstructionPrinterVisitor ipv (str);
+		ipv.Visit(next_packet);
 	}
 	
 	return true;
@@ -69,7 +102,7 @@ bool InstructionPrinter::PrintRegRead(std::ostream &str, RegReadRecord* rec, con
 	assert(rec->GetType() == RegRead);
 	if(!_print_reg_read) return true;
 	
-	str << "(R[" << rec->GetRegNum() << "] -> 0x" << std::hex << std::setw(8) << std::setfill('0') << rec->GetData() << ")";
+	
 	return true;
 }
 

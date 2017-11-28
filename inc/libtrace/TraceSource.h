@@ -185,8 +185,8 @@ namespace libtrace {
 		*(InstructionBundleHeaderRecord*)getNextPacket() = InstructionBundleHeaderRecord(pc, 0);
 	}
 	template<> inline void TraceSource::TraceBundleHeader(uint64_t pc) {
-		*(DataExtensionRecord*)getNextPacket() = DataExtensionRecord(InstructionBundleHeader, pc >> 32);
 		*(InstructionBundleHeaderRecord*)getNextPacket() = InstructionBundleHeaderRecord(pc, 1);
+		*(DataExtensionRecord*)getNextPacket() = DataExtensionRecord(InstructionBundleHeader, pc >> 32);
 	}
 	
 	template <> inline void TraceSource::TraceInstructionHeader(uint32_t pc, uint8_t isa_mode) {
@@ -194,11 +194,12 @@ namespace libtrace {
 		*header = InstructionHeaderRecord(isa_mode, pc, 0);
 	}
 	template <> inline void TraceSource::TraceInstructionHeader(uint64_t pc, uint8_t isa_mode) {		
+		auto *header = (InstructionHeaderRecord*)getNextPacket();
+		*header = InstructionHeaderRecord(isa_mode, pc, 1);
+		
 		auto *extension = (DataExtensionRecord*)getNextPacket();
 		*extension = DataExtensionRecord(InstructionHeader, pc >> 32);
 		
-		auto *header = (InstructionHeaderRecord*)getNextPacket();
-		*header = InstructionHeaderRecord(isa_mode, pc, 1);
 	}
 	
 	template <> inline void TraceSource::TraceInstructionCode(uint32_t ir, uint8_t irq_mode) {
@@ -206,11 +207,12 @@ namespace libtrace {
 		*header = InstructionCodeRecord(irq_mode, ir, 0);
 	}
 	template <> inline void TraceSource::TraceInstructionCode(uint64_t ir, uint8_t irq_mode) {
-		auto *extension = (DataExtensionRecord*)getNextPacket();
-		*extension = DataExtensionRecord(InstructionCode, ir >> 32);
-		
 		auto *header = (InstructionCodeRecord*)getNextPacket();
 		*header = InstructionCodeRecord(irq_mode, ir, 1);
+		
+		auto *extension = (DataExtensionRecord*)getNextPacket();
+		*extension = DataExtensionRecord(InstructionCode, ir >> 32);
+
 	}
 	
 	template <> inline void TraceSource::Trace_Reg_Read(bool Trace, uint8_t Regnum, uint64_t Value)
@@ -218,11 +220,11 @@ namespace libtrace {
 		if(!IsPacketOpen()) return;
 		assert(!IsTerminated() && IsPacketOpen());
 
-		auto extension = (DataExtensionRecord*)(getNextPacket());
-		*extension = DataExtensionRecord(RegRead, Value >> 32);
-		
 		RegReadRecord *record = (RegReadRecord*)(getNextPacket());
 		*record = RegReadRecord(Regnum, Value, 1);
+
+		auto extension = (DataExtensionRecord*)(getNextPacket());
+		*extension = DataExtensionRecord(RegRead, Value >> 32);
 	}
 	
 	template <> inline void TraceSource::Trace_Reg_Read(bool Trace, uint8_t Regnum, uint32_t Value)
@@ -247,11 +249,11 @@ namespace libtrace {
 		if(!IsPacketOpen()) return;
 		assert(!IsTerminated() && IsPacketOpen());
 
-		auto extension = (DataExtensionRecord*)(getNextPacket());
-		*extension = DataExtensionRecord(RegWrite, Value >> 32);
-		
 		RegWriteRecord *record = (RegWriteRecord*)(getNextPacket());
 		*record = RegWriteRecord(Regnum, Value, 1);
+		
+		auto extension = (DataExtensionRecord*)(getNextPacket());
+		*extension = DataExtensionRecord(RegWrite, Value >> 32);
 	}
 	template <> inline void TraceSource::Trace_Reg_Write(bool Trace, uint8_t Regnum, uint32_t Value)
 	{
@@ -276,11 +278,11 @@ namespace libtrace {
 		*record = MemReadAddrRecord(Addr, Width, 0);
 	}
 	template<> inline void TraceSource::TraceMemReadAddr(uint64_t Addr, uint32_t Width) {
-		auto *extension = (DataExtensionRecord*)getNextPacket();
-		*extension = DataExtensionRecord(MemReadAddr, Addr >> 32);
-		
 		auto *record = (MemReadAddrRecord*)getNextPacket();
 		*record = MemReadAddrRecord(Addr, Width, 1);
+		
+		auto *extension = (DataExtensionRecord*)getNextPacket();
+		*extension = DataExtensionRecord(MemReadAddr, Addr >> 32);
 	}
 	
 	template<> inline void TraceSource::TraceMemReadData(uint32_t Data, uint32_t Width) {
@@ -288,11 +290,11 @@ namespace libtrace {
 		*record = MemReadDataRecord(Data, Width, 0);
 	}
 	template<> inline void TraceSource::TraceMemReadData(uint64_t Data, uint32_t Width) {
-		auto *extension = (DataExtensionRecord*)getNextPacket();
-		*extension = DataExtensionRecord(MemReadData, Data >> 32);
-		
 		auto *record = (MemReadDataRecord*)getNextPacket();
 		*record = MemReadDataRecord(Data, Width, 1);
+		
+		auto *extension = (DataExtensionRecord*)getNextPacket();
+		*extension = DataExtensionRecord(MemReadData, Data >> 32);		
 	}
 	
 	template<> inline void TraceSource::TraceMemWriteAddr(uint32_t Addr, uint32_t Width) {
@@ -300,11 +302,11 @@ namespace libtrace {
 		*record = MemWriteAddrRecord(Addr, Width, 0);
 	}
 	template<> inline void TraceSource::TraceMemWriteAddr(uint64_t Addr, uint32_t Width) {
-		auto *extension = (DataExtensionRecord*)getNextPacket();
-		*extension = DataExtensionRecord(MemWriteAddr, Addr >> 32);
-		
 		auto *record = (MemWriteAddrRecord*)getNextPacket();
 		*record = MemWriteAddrRecord(Addr, Width, 1);
+		
+		auto *extension = (DataExtensionRecord*)getNextPacket();
+		*extension = DataExtensionRecord(MemWriteAddr, Addr >> 32);
 	}
 
 	template<> inline void TraceSource::TraceMemWriteData(uint32_t Data, uint32_t Width) {
@@ -312,11 +314,11 @@ namespace libtrace {
 		*record = MemWriteDataRecord(Data, Width, 0);
 	}
 	template<> inline void TraceSource::TraceMemWriteData(uint64_t Data, uint32_t Width) {
-		auto *extension = (DataExtensionRecord*)getNextPacket();
-		*extension = DataExtensionRecord(MemWriteData, Data >> 32);
-		
 		auto *record = (MemWriteDataRecord*)getNextPacket();
 		*record = MemWriteDataRecord(Data, Width, 1);
+		
+		auto *extension = (DataExtensionRecord*)getNextPacket();
+		*extension = DataExtensionRecord(MemWriteData, Data >> 32);
 	}
 	
 }
